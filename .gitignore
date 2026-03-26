@@ -1,0 +1,74 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go build output
+/bin/
+/build/
+/dist/
+
+# Go modules
+/vendor/
+
+# Dependency directories (rare, but sometimes used)
+Godeps/
+
+# Logs
+*.log
+logs/
+
+# Runtime files
+*.pid
+*.seed
+*.pid.lock
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Coverage reports
+coverage.out
+*.coverprofile
+
+# Debug
+debug
+
+# Temporary files
+tmp/
+temp/
+
+# Docker
+*.tar
+docker-compose.override.yml
+
+# Air (live reload)
+.air.toml
+
+# Test binary
+*.test
+
+# Profiling files
+*.pprof
+
+# Local config overrides
+config.local.*
