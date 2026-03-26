@@ -48,7 +48,7 @@ func (app *application) run() error {
 		IdleTimeout:  time.Minute,
 	}
 
-	log.Printf("server has started at %v", app.config.addr)
+	log.Printf(" [server] started at %v", app.config.addr)
 
 	return srv.ListenAndServe()
 }
