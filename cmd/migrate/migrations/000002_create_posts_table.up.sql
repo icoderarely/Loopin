@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS posts (
-    post_id bigserial PRIMARY KEY,
+    id bigserial PRIMARY KEY,
     title text NOT NULL,
     user_id bigint NOT NULL,
     content text NOT NULL,
