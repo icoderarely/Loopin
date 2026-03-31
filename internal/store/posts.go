@@ -8,10 +8,10 @@ import (
 )
 
 type Post struct {
-	ID        int64    `json:"id"`
+	PostID    int64    `json:"post_id"`
 	Content   string   `json:"content"`
 	Title     string   `json:"title"`
-	UserID    string   `json:"user_id"`
+	UserID    int64    `json:"user_id"`
 	Tags      []string `json:"tags"`
 	CreatedAt string   `json:"created_at"`
 	UpdatedAt string   `json:"updated_at"`
@@ -33,10 +33,9 @@ func (s *PostStore) Create(ctx context.Context, post *Post) error {
 		post.Content,
 		post.Title,
 		post.UserID,
-		post.Tags,
 		pq.Array(post.Tags),
 	).Scan(
-		&post.ID,
+		&post.PostID,
 		&post.CreatedAt,
 		&post.UpdatedAt,
 	)

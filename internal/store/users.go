@@ -6,7 +6,7 @@ import (
 )
 
 type User struct {
-	ID        int64  `json:"id"`
+	UserID    int64  `json:"user_id"`
 	Username  string `json:"username"`
 	Email     string `json:"email"`
 	Password  string `json:"-"`
@@ -30,7 +30,7 @@ func (s *UserStore) Create(ctx context.Context, user *User) error {
 		user.Email,
 		user.Password,
 	).Scan(
-		&user.ID,
+		&user.UserID,
 		&user.CreatedAt,
 	)
 	if err != nil {
