@@ -1,7 +1,8 @@
-CREATE TABLE IF NOT EXISTS posts(
+CREATE TABLE IF NOT EXISTS posts (
     id bigserial PRIMARY KEY,
-    title TEXT NOT NULL,
-    user_id BIGINT NOT NULL,
-    content TEXT NOT NULL,
-    created_at TIMESTAMP(0) WITH TIME ZONE NOT NULL DEFAULT NOW()
+    title text NOT NULL,
+    user_id bigint NOT NULL,
+    content text NOT NULL,
+    created_at timestamp(0) with time zone NOT NULL DEFAULT NOW()
 );
+
