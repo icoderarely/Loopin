@@ -68,6 +68,14 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	comments, err := app.store.Comments.GetByPostID(ctx, postID)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	data.Comments = comments
+
 	resp := map[string]any{
 		"status": "ok",
 		"data":   data,
