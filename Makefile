@@ -37,6 +37,9 @@ migrate-force:
 	@echo "⚠️ Forcing migration version to $(version)"
 	@migrate -path=$(MIGRATIONS_PATH) -database="$(DB_ADDR)" force $(version)
 
+.PHONY: seed
+seed: 
+	@go run cmd/migrate/seed/main.go
 
 %:
 	@:
