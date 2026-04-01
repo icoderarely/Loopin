@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/lib/pq"
 )
@@ -16,6 +17,7 @@ type Post struct {
 	Tags      []string  `json:"tags"`
 	CreatedAt string    `json:"created_at"`
 	UpdatedAt string    `json:"updated_at"`
+	Version   int64     `json:"version"`
 	Comments  []Comment `json:"comments"`
 }
 
@@ -23,13 +25,19 @@ type PostStore struct {
 	db *sql.DB
 }
 
-var ErrNotFound = errors.New("resource not found")
+var (
+	ErrNotFound          = errors.New("resource not found")
+	QueryTimeoutDuration = time.Second * 5
+)
 
 func (s *PostStore) Create(ctx context.Context, post *Post) error {
 	query := `
 	INSERT INTO posts (content, title, user_id, tags)
 	VALUES ($1, $2, $3, $4) RETURNING id, created_at, updated_at
 	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
 
 	err := s.db.QueryRowContext(
 		ctx,
@@ -52,10 +60,13 @@ func (s *PostStore) Create(ctx context.Context, post *Post) error {
 
 func (s *PostStore) GetByID(ctx context.Context, postID int64) (*Post, error) {
 	query := `
-	SELECT id, title, content, user_id, tags, created_at
+	SELECT id, title, content, user_id, tags, created_at, version
 	FROM posts
 	WHERE id = $1;
 	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
 
 	post := &Post{}
 
@@ -70,6 +81,7 @@ func (s *PostStore) GetByID(ctx context.Context, postID int64) (*Post, error) {
 		&post.UserID,
 		pq.Array(&post.Tags),
 		&post.CreatedAt,
+		&post.Version,
 	)
 	if err != nil {
 		switch {
@@ -87,6 +99,9 @@ func (s *PostStore) Delete(ctx context.Context, postID int64) error {
 	query := `
 	DELETE FROM posts WHERE id = $1 RETURNING id;
 	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
 
 	var deletedID int64
 	err := s.db.QueryRowContext(
@@ -109,10 +124,13 @@ func (s *PostStore) Delete(ctx context.Context, postID int64) error {
 func (s *PostStore) Update(ctx context.Context, post *Post) error {
 	query := `
 	UPDATE posts
-	SET title = $1, content = $2, updated_at = NOW()
-	WHERE id = $3
-	RETURNING updated_at
+	SET title = $1, content = $2, updated_at = NOW(), version = version + 1
+	WHERE id = $3 AND version = $4
+	RETURNING updated_at, version
 	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
 
 	err := s.db.QueryRowContext(
 		ctx,
@@ -120,7 +138,11 @@ func (s *PostStore) Update(ctx context.Context, post *Post) error {
 		post.Title,
 		post.Content,
 		post.ID,
-	).Scan(&post.UpdatedAt)
+		post.Version,
+	).Scan(
+		&post.UpdatedAt,
+		&post.Version,
+	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ErrNotFound
