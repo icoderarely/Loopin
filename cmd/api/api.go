@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"go.uber.org/zap"
 
 	"github.com/icoderarely/Loopin/docs"
 	"github.com/icoderarely/Loopin/internal/store"
@@ -17,6 +17,7 @@ import (
 type application struct {
 	config config
 	store  store.Storage
+	logger *zap.SugaredLogger
 }
 
 type config struct {
@@ -97,7 +98,7 @@ func (app *application) run() error {
 		IdleTimeout:  time.Minute,
 	}
 
-	log.Printf(" [server] started at %v", app.config.addr)
+	app.logger.Infow("server started", "addr", app.config.addr)
 
 	return srv.ListenAndServe()
 }
