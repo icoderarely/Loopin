@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 type Storage struct {
@@ -14,9 +15,9 @@ type Storage struct {
 		GetUserFeed(context.Context, int64, PaginatedFeedQuery) ([]PostWithMetadata, error)
 	}
 	Users interface {
-		Create(context.Context, *User) error
+		Create(context.Context, *sql.Tx, *User) error
 		GetByID(context.Context, int64) (*User, error)
-		CreateAndInvite(ctx context.Context, user *User, token string) error
+		CreateAndInvite(context.Context, *User, string, time.Duration) error
 	}
 	Comments interface {
 		GetByPostID(context.Context, int64) ([]Comment, error)
