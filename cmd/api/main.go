@@ -6,6 +6,7 @@ import (
 
 	"github.com/icoderarely/Loopin/internal/db"
 	"github.com/icoderarely/Loopin/internal/env"
+	"github.com/icoderarely/Loopin/internal/mailer"
 	"github.com/icoderarely/Loopin/internal/store"
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
@@ -47,8 +48,14 @@ func main() {
 			maxIdleTime:  env.GetString("DB_MAX_IDLE_TIME", "15m"),
 		},
 		mail: mailConfig{
-			exp: time.Hour * 24 * 3, // 3 days
+			exp:       time.Hour * 24 * 3, // 3 days
+			fromEmail: env.GetString("FROM_EMAIL", ""),
+			sendGrid: sendGridConfig{
+				apiKey: env.GetString("SENDGRID_API_KEY", ""),
+			},
 		},
+		frontendURL: env.GetString("FRONTEND_URL", "http://localhost:4000"),
+		env:         env.GetString("ENV", "development"),
 	}
 
 	logger := zap.Must(zap.NewProduction()).Sugar()
@@ -68,10 +75,13 @@ func main() {
 
 	store := store.NewPostgresStorage(db)
 
+	mailer := mailer.NewSendgrid(cfg.mail.sendGrid.apiKey, cfg.mail.fromEmail)
+
 	app := &application{
 		config: cfg,
 		store:  store,
 		logger: logger,
+		mailer: mailer,
 	}
 
 	logger.Fatal(app.run())
