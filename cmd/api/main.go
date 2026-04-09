@@ -56,6 +56,12 @@ func main() {
 		},
 		frontendURL: env.GetString("FRONTEND_URL", "http://localhost:4000"),
 		env:         env.GetString("ENV", "development"),
+		auth: authConfig{
+			basic: basicConfig{
+				user: env.GetString("AUTH_BASIC_USER", "admin"),
+				pass: env.GetString("AUTH_BASIC_PASS", "admin"),
+			},
+		},
 	}
 
 	logger := zap.Must(zap.NewProduction()).Sugar()
