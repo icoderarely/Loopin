@@ -18,6 +18,7 @@ type Storage struct {
 		Create(context.Context, *sql.Tx, *User) error
 		GetByID(context.Context, int64) (*User, error)
 		CreateAndInvite(context.Context, *User, string, time.Duration) error
+		Activate(context.Context, string) error
 	}
 	Comments interface {
 		GetByPostID(context.Context, int64) ([]Comment, error)
@@ -47,5 +48,5 @@ func withTx(db *sql.DB, ctx context.Context, fn func(*sql.Tx) error) error {
 		_ = tx.Rollback()
 		return err
 	}
-	return nil
+	return tx.Commit()
 }
