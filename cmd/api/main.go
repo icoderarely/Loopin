@@ -50,8 +50,8 @@ func main() {
 		mail: mailConfig{
 			exp:       time.Hour * 24 * 3, // 3 days
 			fromEmail: env.GetString("FROM_EMAIL", ""),
-			sendGrid: sendGridConfig{
-				apiKey: env.GetString("SENDGRID_API_KEY", ""),
+			mailtrap: mailtrapConfig{
+				apiKey: env.GetString("MAILTRAP_API_KEY", ""),
 			},
 		},
 		frontendURL: env.GetString("FRONTEND_URL", "http://localhost:4000"),
@@ -75,13 +75,16 @@ func main() {
 
 	store := store.NewPostgresStorage(db)
 
-	mailer := mailer.NewSendgrid(cfg.mail.sendGrid.apiKey, cfg.mail.fromEmail)
+	mailClient, err := mailer.NewMailtrapClient(cfg.mail.mailtrap.apiKey, cfg.mail.fromEmail)
+	if err != nil {
+		logger.Fatal(err)
+	}
 
 	app := &application{
 		config: cfg,
 		store:  store,
 		logger: logger,
-		mailer: mailer,
+		mailer: mailClient,
 	}
 
 	logger.Fatal(app.run())
