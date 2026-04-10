@@ -99,7 +99,7 @@ func (s *UserStore) GetByID(ctx context.Context, userID int64) (*User, error) {
 		&user.ID,
 		&user.Username,
 		&user.Email,
-		&user.Password,
+		&user.Password.hash,
 		&user.CreatedAt,
 	)
 	if err != nil {
@@ -286,4 +286,8 @@ func (s *UserStore) GetByEmail(ctx context.Context, emailID string) (*User, erro
 	}
 
 	return user, nil
+}
+
+func (p *password) Compare(text string) error {
+	return bcrypt.CompareHashAndPassword(p.hash, []byte(text))
 }
