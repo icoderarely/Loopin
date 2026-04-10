@@ -11,16 +11,18 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/icoderarely/Loopin/docs"
+	"github.com/icoderarely/Loopin/internal/auth"
 	"github.com/icoderarely/Loopin/internal/mailer"
 	"github.com/icoderarely/Loopin/internal/store"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type application struct {
-	config config
-	store  store.Storage
-	logger *zap.SugaredLogger
-	mailer mailer.Client
+	config        config
+	store         store.Storage
+	logger        *zap.SugaredLogger
+	mailer        mailer.Client
+	authenticator auth.Authenticator
 }
 
 type config struct {
@@ -35,11 +37,18 @@ type config struct {
 
 type authConfig struct {
 	basic basicConfig
+	token tokenConfig
 }
 
 type basicConfig struct {
 	user string
 	pass string
+}
+
+type tokenConfig struct {
+	secret string
+	exp    time.Duration
+	iss    string
 }
 
 type mailConfig struct {
@@ -121,6 +130,7 @@ func (app *application) mount() http.Handler {
 		// Public routes
 		r.Route("/authentication", func(r chi.Router) {
 			r.Post("/user", app.registerUserHandler)
+			r.Post("/token", app.createTokenHandler)
 		})
 	})
 

@@ -37,7 +37,7 @@ func (app *application) BasicAuthMiddleware() func(http.Handler) http.Handler {
 			// check the creds
 			creds := strings.SplitN(string(decoded), ":", 2)
 			if len(creds) != 2 || creds[0] != username || creds[1] != pass {
-				app.unauthorizedErrorResponse(w, r, fmt.Errorf("Invalid creds"))
+				app.unauthorizedErrorResponse(w, r, fmt.Errorf("invalid creds"))
 				return
 			}
 

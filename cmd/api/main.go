@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/icoderarely/Loopin/internal/auth"
 	"github.com/icoderarely/Loopin/internal/db"
 	"github.com/icoderarely/Loopin/internal/env"
 	"github.com/icoderarely/Loopin/internal/mailer"
@@ -61,6 +62,11 @@ func main() {
 				user: env.GetString("AUTH_BASIC_USER", "admin"),
 				pass: env.GetString("AUTH_BASIC_PASS", "admin"),
 			},
+			token: tokenConfig{
+				secret: env.GetString("AUTH_TOKEN_SECRET", "example"),
+				exp:    time.Hour * 24 * 3,
+				iss:    "Loopin",
+			},
 		},
 	}
 
@@ -86,11 +92,14 @@ func main() {
 		logger.Fatal(err)
 	}
 
+	jwtAuthenticator := auth.NewJWTAuthenticator(cfg.auth.token.secret, cfg.auth.token.iss, cfg.auth.token.iss)
+
 	app := &application{
-		config: cfg,
-		store:  store,
-		logger: logger,
-		mailer: mailClient,
+		config:        cfg,
+		store:         store,
+		logger:        logger,
+		mailer:        mailClient,
+		authenticator: jwtAuthenticator,
 	}
 
 	logger.Fatal(app.run())
